@@ -1,0 +1,31 @@
+DROP TABLE IF EXISTS entries;
+DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS source;
+DROP TABLE IF EXISTS category;
+
+CREATE TABLE user (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL
+);
+
+CREATE TABLE source (
+  source TEXT UNIQUE PRIMARY KEY
+);
+
+CREATE TABLE category (
+  category TEXT UNIQUE PRIMARY KEY
+);
+
+CREATE TABLE entries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  payer_id INTEGER NOT NULL,
+  date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  payee TEXT NOT NULL,
+  amount INTEGER NOT NULL,
+  source TEXT NOT NULL,
+  category TEXT NOT NULL,
+  FOREIGN KEY (payer_id) REFERENCES user (id),
+  FOREIGN KEY (source) REFERENCES source (source),
+  FOREIGN KEY (category) REFERENCES category (category)
+);
