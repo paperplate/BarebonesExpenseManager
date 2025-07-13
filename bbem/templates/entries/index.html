@@ -12,10 +12,11 @@
 	<article class="entry">
 		<header>
 		<div>
-		<h1>{{ post['title'] }}</h1>
-		<div class="about">by {{ entry['username'] }} on {{ entry['date'].strftime('%Y-%m-%d') }}</div>
+		<h1>{{ entry['payee'] }}</h1>
+		<div class="about">by {{ entry['username'] }} on {{ entry['date'].strftime('%Y-%m-%d') }}
+Amount: ${{ '%0.2f'|format(entry['amount'])|float }} Source: {{ entry['source'] }} Category: {{ entry['category'] }}</div>
 		</div>
-		{% if g.user['id'] == entry['author_id'] %}
+		{% if g.user['id'] == entry['payer_id'] %}
 			<a class="action" href="{{ url_for('entries.update', id=entry['id']) }}">Edit</a>
 		{% endif %}
 		</header>

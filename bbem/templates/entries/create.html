@@ -10,12 +10,14 @@
 	<input name="payer" id="payer" type="text" value="{{ request.form['payer_id'] }}" required>
 	<label for="payee">Payee</label>
 	<input name="payee" id="payee" type="text" value="{{ request.form['payee'] }}" required>
-                'INSERT INTO entries (payer_id, payee, date, amount, source, category)'
 	<label for="date">Date</label>
 	<input name="date" id="date" type="date" value="{{ request.form['date'] }}" required>
 	<label for="amount">Amount</label>
-	<input name="amount" id="amount" type="number" value="{{ request.form['amount'] }}" required>
+	<input name="amount" id="amount" type="number" step=0.01 value="{{ request.form['amount'] }}" required>
 	<label for="source">Source</label>
+	<input name="source" id="source" type="text" value="{{ request.form['source'] }}" required>
 	<label for="category">Category</label>
+	<input name="category" id="category" type="text" value="{{ request.form['category'] }}" required>
+	<input type="submit" value="Save">
 </form>
 {% endblock %}

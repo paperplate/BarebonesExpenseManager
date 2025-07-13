@@ -8,6 +8,7 @@ from bbem.db import get_db
 bp = Blueprint('entries', __name__)
 
 @bp.route('/')
+@login_required
 def index():
     db = get_db()
     entries = db.execute(
