@@ -1,12 +1,14 @@
 import os
 from flask import Flask
+from dotenv import dotenv_values
 
+config = dotenv_values('.env')
 
 def create_app(test_config=None):
     '''create and configure the app.'''
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRECT_KEY='dev',
+        SECRET_KEY=config['SECRET_KEY'],
         DATABASE=os.path.join(app.instance_path, 'bbem.sqlite'),
     )
 
