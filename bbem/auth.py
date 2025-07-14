@@ -91,4 +91,25 @@ def login_required(view):
     return wrapped_view
 
 
+@bp.route('/admin', methods=('GET', 'POST'))
+@login_required
+def admin():
+    db = get_db()
+    error = None
+    user = db.execute(
+        'SELECT * FROM user'
+    ).fetchall()
+
+    print(user)
+
+    category = db.execute(
+            'SELECT * FROM category'
+    ).fetchall()
+
+    source = db.execute(
+            'SELECT * FROM source'
+    ).fetchall()
+
+    flash(error)
+    return render_template('auth/admin.html', user=user, category=category, source=source)
 

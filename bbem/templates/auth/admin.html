@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Admin{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div>
+<header>
+<h1>users</h1>
+{% for u in user %}
+	<li> {{ u['username'] }}
+{% endfor %}
+<hr>
+</div>
+<div>
+<header>
+<h1>categories</h1>
+{% for c in category %}
+	<li> {{ c['category'] }}
+{% endfor %}
+<hr>
+</div>
+<div>
+<header>
+<h1>sources</h1>
+{% for s in source %}
+	<li> {{ s['source'] }}
+{% endfor %}
+<hr>
+</div>
+{% endblock %}

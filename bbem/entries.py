@@ -51,31 +51,16 @@ def validate_vars(payee, date, amount, source, category):
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
 def create():
+    db = get_db()
+
     if request.method == 'POST':
-        #payee = request.form['payee']
-        #date = request.form['date']
-        #amount = request.form['amount']
-        #source = request.form['source']
-        #category = request.form['category']
-        #error = None
         _, payee, date, amount, source, category, error = init_vars()
 
         error = validate_vars(payee, date, amount, source, category)
-        #if not payee:
-        #    error = 'Payee is required.'
-        #elif not date:
-        #    error = 'date is required.'
-        #elif not amount:
-        #    error = 'Amount is required.'
-        #elif not source:
-        #    error = 'Source is required.'
-        #elif not category:
-        #    error = 'Category is required.'
 
         if error is not None:
             flash(error)
         else:
-            db = get_db()
             db.execute(
                 'INSERT INTO entries (payer_id, payee, date, amount, source, category)'
                 'VALUES (?, ?, ?, ?, ?, ?)',
@@ -83,6 +68,8 @@ def create():
             )
             db.commit()
             return redirect(url_for('entries.index'))
+    
+    
     return render_template('entries/create.html')
 
 
