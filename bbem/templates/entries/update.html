@@ -7,20 +7,37 @@
 {% block content %}
 <form method="post">
 	<label for="payer">Payer</label>
-	<input name="payer" id="payer" type="text" value="{{ request.form['payer_id'] }}" required>
+	<input name="payer_id" id="payer" value="{{ request.form['payer_id'] }}" list="payerList"
+placeholder="{{ entry['username'] }}" required/>
+	<datalist id="payerList" name="payerList">
+	{% for u in users %}
+	<option value="{{ u['id'] }}" label="{{ u['username'] }}"></option>
+	{% endfor %}
+	</datalist>
 	<label for="payee">Payee</label>
-	<input name="payee" id="payee" type="text" value="{{ request.form['payee'] }}" required>
-                'INSERT INTO entries (payer_id, payee, date, amount, source, category)'
+	<input name="payee" id="payee" type="text" value="{{ request.form['payee'] }}" placeholder="{{ entry['payee'] }}" required />
 	<label for="date">Date</label>
-	<input name="date" id="date" type="date" value="{{ request.form['date'] }}" required>
+<input name="date" id="date" type="date" value="{{ request.form['date'] }}" placeholder="{{ entry['date'] }}" required />
 	<label for="amount">Amount</label>
-	<input name="amount" id="amount" type="number" value="{{ request.form['amount'] }}" required>
+<input name="amount" id="amount" type="number" step=0.01 value="{{ request.form['amount'] }}" placeholder="{{ entry['amount'] }}" required />
 	<label for="source">Source</label>
+<input name="source" id="source" type="text" value="{{ request.form['source'] }}" list="sourceList" placeholder="{{ entry['source'] }}" required />
+	<datalist id="sourceList" name="sourceList">
+	{% for s in source %}
+	<option value="{{ s['source'] }}"></option>
+	{% endfor %}
+	</datalist>
 	<label for="category">Category</label>
-	<input type="submit" value="Save">
+<input name="category" id="category" type="text" value="{{ request.form['category'] }}" list="categoryList" placeholder="{{ entry['category'] }}" required />
+	<datalist id="categoryList" name="categoryList">
+	{% for c in category %}
+	<option value="{{ c['category'] }}"></option>
+	{% endfor %}
+	</datalist>
+	<input type="submit" value="Save" />
 </form>
 <hr>
-<form action="{{ url_for('entries.delete', id=entry['id']) }}" method="post">
-	<input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+<form action="{{ url_for('entries.delete', id=entry['id']) }}" method="post" />
+	<input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');" />
 </form>
 {% endblock %}

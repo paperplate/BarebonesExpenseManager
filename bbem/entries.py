@@ -99,15 +99,15 @@ def create():
 def get_post(id, check_author=True):
     entry = get_db().execute(
         'SELECT e.id, payer_id, payee, date, amount, source, category'
-        ' FROM entry e JOIN user u ON p.payer_id = u.id'
+        ' FROM entries e ' #JOIN user u ON e.payer_id = u.id'
         ' WHERE e.id = ?',
             (id,)
     ).fetchone()
 
     if entry is None:
         abort(404, f"Post id {id} doesn't exist.")
-    if check_author and entry['payer_id'] != g.user['id']:
-        abort(403)
+    #if check_author and entry['payer_id'] != g.user['id']:
+    #    abort(403)
 
     return entry
 
@@ -115,32 +115,43 @@ def get_post(id, check_author=True):
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
 def update(id):
+    db = get_db()
     entry = get_post(id)
 
     if request.method == 'POST':
         payer, payee, date, amount, source, category, error = init_vars()
-
         error = validate_vars(payee, date, amount, source, category)
 
         if error is not None:
             flash(error)
         else:
-            db = get_db()
             db.execute(
-                'UPDATE entry SET payer = ?, payee = ?, date = ?, amount = ?, source = ?, category = ?'
+                'UPDATE entries SET payer = ?, payee = ?, date = ?, amount = ?, source = ?, category = ?'
                 ' WHERE id = ?',
-                (payer, payee, date, amount, source, category)
+                (payer, payee, date, amount, source, category, id)
             )
             db.commit()
             return redirect(url_for('entries.index'))
-    return render_template('entries/update.html', entry=entry)
+
+    users = db.execute(
+        'SELECT id, username FROM user'
+    ).fetchall()
+
+    category = db.execute(
+        'SELECT category FROM category'
+    ).fetchall()
+
+    source = db.execute(
+        'SELECT source FROM source'
+    ).fetchall()
+
+    return render_template('entries/update.html', entry=entry, users=users, category=category, source=source)
 
 
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required
 def delete(id):
-    get_post(id)
     db = get_db()
-    db.execute('DELETE FROM entry WHERE id = ?', (id,))
+    db.execute('DELETE FROM entries WHERE id = ?', (id,))
     db.commit()
     return redirect(url_for('entries.index'))
