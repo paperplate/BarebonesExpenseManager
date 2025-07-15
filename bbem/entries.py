@@ -21,10 +21,10 @@ def index():
 
 
 def init_vars():
-    payer = request.form['payer']
+    payer = int(request.form['payer_id'])
     payee = request.form['payee']
     date = request.form['date']
-    amount = request.form['amount']
+    amount = int(float(request.form['amount'])*100)
     source = request.form['source']
     category = request.form['category']
     error = None
@@ -54,7 +54,7 @@ def create():
     db = get_db()
 
     if request.method == 'POST':
-        _, payee, date, amount, source, category, error = init_vars()
+        payer, payee, date, amount, source, category, error = init_vars()
 
         error = validate_vars(payee, date, amount, source, category)
 
@@ -63,14 +63,37 @@ def create():
         else:
             db.execute(
                 'INSERT INTO entries (payer_id, payee, date, amount, source, category)'
-                'VALUES (?, ?, ?, ?, ?, ?)',
-                (g.user['id'], payee, date, amount, source, category)
+                ' VALUES (?, ?, ?, ?, ?, ?)',
+                (payer, payee, date, amount, source, category)
+            )
+            db.commit()
+            db.execute(
+                'INSERT OR IGNORE INTO category (category)'
+                ' VALUES (?)',
+                (category,)
+            )
+            db.commit()
+            db.execute(
+                'INSERT OR IGNORE INTO source (source)'
+                ' VALUES (?)',
+                (source,)
             )
             db.commit()
             return redirect(url_for('entries.index'))
-    
-    
-    return render_template('entries/create.html')
+
+    users = db.execute(
+        'SELECT id, username FROM user'
+    ).fetchall()
+
+    category = db.execute(
+        'SELECT category FROM category'
+    ).fetchall()
+
+    source = db.execute(
+        'SELECT source FROM source'
+    ).fetchall()
+
+    return render_template('entries/create.html', users=users, category=category, source=source)
 
 
 def get_post(id, check_author=True):
