@@ -7,6 +7,7 @@ dependencies = [
 	"pytest",
 	"coverage",
 	"python-dotenv",
+	"flask_csv",
 ]
 
 [build-system]

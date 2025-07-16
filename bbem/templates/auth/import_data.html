@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Import Data{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<table id="import-table" class="table display" cellspacing="0" contenteditable="true">
+<thead>
+	<tr>
+	{% for h in headers %}
+		<th scope="col">{{h}}</th>
+	{% endfor %}
+	</tr>
+</thead>
+<tbody>
+	{% for r in dat %}
+	<tr>
+		{% for d in r %}
+		<td>{{d}}</td>
+		{% endfor %}
+	</tr>
+	{% endfor %}
+</tbody>
+</table>
+
+<form method="POST" action="">
+	<p><input type="submit" value="Submit"></p>
+</form>
+{% endblock %}
+
+

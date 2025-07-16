@@ -2,3 +2,4 @@ Flask
 pytest
 coverage
 python-dotenv
+flask_csv
