@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 import functools
 import os
 from flask import (
@@ -105,8 +106,6 @@ def admin():
         'SELECT * FROM user'
     ).fetchall()
 
-    print(user)
-
     category = db.execute(
             'SELECT * FROM category'
     ).fetchall()
@@ -145,6 +144,47 @@ def upload():
 @login_required
 def import_data():
     if request.method == 'POST':
+        db = get_db()
+        rows = []
+        for k,v in request.form.lists():
+            kl = k.lower()
+            if 'date' in kl:
+                rows += [v]
+            elif 'description' in kl:
+                rows += [v]
+            elif 'category' in kl:
+                rows += [v]
+            elif 'cost' in kl:
+                rows += [v]
+            elif 'sean' in kl:
+                rows += [v]
+            elif 'weixi' in kl:
+                rows += [v]
+
+        users = [ u['id']  for u in db.execute(
+            'SELECT id, username FROM user'
+        ).fetchall()]
+
+        payer = [users[int(float(r[0]) - float(r[1]) > 0)] for r in zip(*rows[-2:])]
+
+        tbl = zip(*([payer] + 
+            [[datetime.fromisoformat(d[1:-1]) for d in rows[0]]] +
+            [[p[1:-1].strip() for p in rows[1]]] +
+            [[c[1:-1] for c in rows[2]]] +
+            [[int(float(a[1:-1])*100.0) for a in rows[3]]] + 
+            [['empty']*len(payer)]))
+
+        #print('*************************************************')
+        #for r in tbl:
+        #    print(r)
+        #print('*************************************************')
+
+        db.executemany(
+            'INSERT INTO entries (payer_id, date, payee, category, amount, source)'
+            ' VALUES (?, ?, ?, ?, ?, ?)',
+            (tbl)
+        )
+        db.commit()
         return redirect(url_for('index'))
 
     with open(os.path.join(current_app.config['UPLOAD_FOLDER'], request.args.get('filename')), newline='') as f:

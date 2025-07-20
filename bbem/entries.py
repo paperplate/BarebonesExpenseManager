@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
 )
@@ -12,7 +13,7 @@ bp = Blueprint('entries', __name__)
 def index():
     db = get_db()
     entries = db.execute(
-        'SELECT e.id, payer_id, payee, date, amount, source, category'
+        'SELECT e.id, u.username, payer_id, payee, date, amount, source, category'
         ' FROM entries e JOIN user u ON e.payer_id = u.id'
         ' ORDER BY date DESC'
     ).fetchall()
@@ -24,6 +25,7 @@ def init_vars():
     payer = int(request.form['payer_id'])
     payee = request.form['payee']
     date = request.form['date']
+    #date = datetime.strptime(request.form['date'][1:-1], '%Y-%m-%d')
     amount = int(float(request.form['amount'])*100)
     source = request.form['source']
     category = request.form['category']

@@ -2,31 +2,44 @@
 
 {% block header %}
 <h1>{% block title %}Import Data{% endblock %}</h1>
+<script>
+function collectRows(event) {
+	const formData = new FormData();
+	const rows = event.target.querySelectorAll('tbody > tr > td[name]');
+	rows.forEach(td => {
+		formData.append(td.getAttribute('name'), td.innerText.trim());
+	});
+	event.detail.parameters = formData;
+}
+</script>
 {% endblock %}
 
 {% block content %}
-<table id="import-table" class="table display" cellspacing="0" contenteditable="true">
+<form 	hx-post="/auth/import_data"
+	hx-swap="innerHTML settle:3s"
+	hx-target="body"
+	hx-on::config-request="collectRows(event)"
+>
+<table cellspacing="0" contenteditable="true" border="1">
 <thead>
 	<tr>
 	{% for h in headers %}
-		<th scope="col">{{h}}</th>
+	<th>{{h}}</th>
 	{% endfor %}
 	</tr>
 </thead>
 <tbody>
 	{% for r in dat %}
+	{% set iy=loop.index0 %}
 	<tr>
 		{% for d in r %}
-		<td>{{d}}</td>
+			<td name="{{headers[loop.index0]}}">{{d}}</td>
 		{% endfor %}
 	</tr>
 	{% endfor %}
 </tbody>
 </table>
-
-<form method="POST" action="">
-	<p><input type="submit" value="Submit"></p>
+	<input type="submit" value="Bulk Import">
 </form>
+
 {% endblock %}
-
-
