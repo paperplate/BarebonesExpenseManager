@@ -1,6 +1,7 @@
 import csv
 from datetime import datetime
 import functools
+import json
 import os
 from flask import (
     Blueprint, current_app, flash, g, redirect, render_template, request, session, url_for
@@ -167,18 +168,28 @@ def import_data():
 
         payer = [users[int(float(r[0]) - float(r[1]) > 0)] for r in zip(*rows[-2:])]
 
+        categories = [c[1:-1] for c in rows[2]]
+        sources = ['empty']*len(payer)
+
         tbl = zip(*([payer] + 
             [[datetime.fromisoformat(d[1:-1]) for d in rows[0]]] +
             [[p[1:-1].strip() for p in rows[1]]] +
-            [[c[1:-1] for c in rows[2]]] +
+            [categories] +
             [[int(float(a[1:-1])*100.0) for a in rows[3]]] + 
-            [['empty']*len(payer)]))
+            [sources]))
 
-        #print('*************************************************')
-        #for r in tbl:
-        #    print(r)
-        #print('*************************************************')
-
+        db.executemany(
+            'INSERT OR IGNORE INTO category (category)'
+            ' VALUES (?)',
+            (((c,) for c in categories))
+        )
+        db.commit()
+        db.executemany(
+            'INSERT OR IGNORE INTO source (source)'
+            ' VALUES (?)',
+            (((s,) for s in sources))
+        )
+        db.commit()
         db.executemany(
             'INSERT INTO entries (payer_id, date, payee, category, amount, source)'
             ' VALUES (?, ?, ?, ?, ?, ?)',
@@ -191,3 +202,30 @@ def import_data():
         contents = list(csv.reader(f, delimiter=',', quotechar='|'))
 
     return render_template('auth/import_data.html', headers=contents[0], dat=contents[1:])
+
+
+# https://stackoverflow.com/questions/3286525/return-sql-table-as-json-in-python
+def query2json(query, args=(), one=False):
+    db = get_db()
+    cur = db.execute(query, args)
+    r = [dict((cur.description[i][0], value) for i, value in enumerate(row)) for row in cur.fetchall()]
+    return (r[0] if r else None) if one else r
+
+
+@bp.route('/report', methods=('GET',))
+@login_required
+def report():
+    db = get_db()
+    error = None
+    user = query2json('SELECT id, username FROM user')
+    category = query2json('SELECT * FROM category')
+    source = query2json('SELECT * FROM source')
+    entries = query2json(
+        'SELECT e.id, u.username, payer_id, payee, date, amount, source, category'
+        ' FROM entries e JOIN user u ON e.payer_id = u.id'
+        ' ORDER BY date DESC'
+    )
+
+    if error:
+        flash(error)
+    return render_template('auth/report.html', user=user, category=category, source=source, entries=entries)

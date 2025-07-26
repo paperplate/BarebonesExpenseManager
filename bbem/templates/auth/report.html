@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Report{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="visualization">
+	<div id="pieChart"></div>
+	<div id="barChart"></div>
+</div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script type="text/javascript">
+	const entries = {{ entries|tojson|safe }}
+	const user = {{ user|tojson|safe }}
+	const category = {{ category|tojson|safe }}
+	const source = {{ source|tojson|safe }}
+</script>
+<script src="{{ url_for('static', filename='pieChart.js') }}"></script>
+<script src="{{ url_for('static', filename='barChart.js') }}"></script>
+<script src="{{ url_for('static', filename='updateBarChart.js') }}"></script>
+<script src="{{ url_for('static', filename='index.js') }}"></script>
+{% endblock %}
+
+
